@@ -2,7 +2,7 @@
 **AI / ML / DL Engineer · Data Scientist**
 Building production-grade ML systems — evidence-grounded LLMs, calibrated quantile models, geospatial ML — with the MLOps surface (observability, supply-chain, drift) that keeps them honest.
 
-📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwa-ben-salem](www.linkedin.com/in/marwa-ben-salem-573465b6) 
+📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwa-ben-salem-573465b6](https://www.linkedin.com/in/marwa-ben-salem-573465b6)
 
 ---
 
