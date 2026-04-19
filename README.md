@@ -1,6 +1,6 @@
 # Marwa Ben Salem
 **AI / ML / DL Engineer · Data Scientist**
-Building production-grade ML systems — evidence-grounded LLMs, calibrated quantile models, geospatial ML — with the MLOps surface (observability, supply-chain, drift) that keeps them honest.
+Building production-grade ML systems — evidence-grounded LLMs, calibrated quantile models, hybrid decision engines — with the MLOps surface (observability, supply-chain, drift) that keeps them honest.
 
 📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwa-ben-salem-573465b6](https://www.linkedin.com/in/marwa-ben-salem-573465b6)
 
@@ -17,6 +17,16 @@ Evidence-first LLM pipeline with hallucination guards, seniority-calibrated outp
 **Live demo:** [resumeforge-bg29.onrender.com](https://resumeforge-bg29.onrender.com)
 
 ---
+### ⚖️ [Job_Decision_Engine](https://github.com/MarwaBS/Job_Decision_Engine) — Deterministic decision system for job applications
+
+Hybrid 5-signal weighted scorer + bounded LLM reasoning layer. Locked weights, append-only audit log, intentionally-inert evaluation pending real outcomes. **Determinism formally verified to `1e-9` precision across local, CI, and production.**
+
+**Stack:** Pydantic v2 · sentence-transformers · OpenAI gpt-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · Hugging Face Spaces
+**Highlights:** Architecture-as-Contract (immutable design doc + execution rules) · 261 hermetic invariant tests in 1.10s · 3-job CI (privacy audit · tests · auto-deploy to HF) · `decision_trace` with counterfactual sensitivity replays + dominant-signal coding · Protocol-based Mongo / LLM / embedding abstractions · frozen 3-environment determinism proof artifact
+**Live demo:** [huggingface.co/spaces/MarwaBS/job-decision-engine](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
+
+---
+
 
 ### 📊 [nyc-real-estate-predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) — NYC real-estate price-zone classification + regression
 
@@ -43,9 +53,10 @@ End-to-end data science pipeline on BLS OEWS + Census microdata. Multi-quantile 
 | Lane | Bar | Portfolio signal |
 |---|---|---|
 | **LLM / Agentic** | Evidence-grounded generation, not prompt engineering | ResumeForge |
+| **ML Systems Design** | Deterministic core + bounded LLM + verified reproducibility | Job_Decision_Engine |
 | **ML / DL Engineering** | Honest metrics (no leakage), reproducible pipelines | nyc-real-estate-predictor |
 | **Data Science** | Calibrated uncertainty, fairness-aware analysis | high-pay-salary-predictor |
-| **MLOps** | CI-gated supply chain (Trivy · SBOM · Dependabot) across all 3 repos | every project |
+| **MLOps** | CI-gated supply chain (Trivy · SBOM · Dependabot · privacy audit) across all 4 repos | every project |
 
 ## Tech
 
@@ -59,8 +70,9 @@ End-to-end data science pipeline on BLS OEWS + Census microdata. Multi-quantile 
 
 ## Currently
 
-- Sharpening interview prep across the 3 target lanes.
-- Open to **Senior AI Engineer · ML/DL Engineer · Data Scientist** roles.
+- Sharpening interview prep across the **4** target lanes.
+- Open to **Senior AI Engineer · ML / DL Engineer · ML Systems Engineer · Data Scientist** roles.
 - Based remote/open to relocation.
 
-<sub>Last updated: 2026-04-18 · Repos green CI-verified on HEAD · MIT-licensed</sub>
+
+<sub>Last updated: 2026-04-19 · Repos green CI-verified on HEAD · MIT-licensed</sub>
