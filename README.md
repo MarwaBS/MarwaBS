@@ -13,7 +13,7 @@ Building production-grade ML systems — evidence-grounded LLMs, calibrated quan
 Evidence-first LLM pipeline with hallucination guards, seniority-calibrated outputs, prompt versioning, drift detection, and a `$/resume` cost meter.
 
 **Stack:** FastAPI · Streamlit · Pydantic v2 · Redis · arq · Mongo · FAISS / Qdrant · OpenAI · OTel · Prometheus · Helm · Docker
-**Highlights:** `LLMProtocol` + `VectorStoreProtocol` abstractions · 1,326 tests · 7-job CI (Trivy · SBOM · perf regression gate) · retrieval eval with `recall@k / MRR / nDCG` + bootstrap CIs · multi-pod-safe JWT revocation · Redis-backed daily cost circuit-breaker
+**Highlights:** `LLMProtocol` + `VectorStoreProtocol` abstractions · 1,800 passing at 81.62 % coverage· 7-job CI (Trivy · SBOM · perf regression gate) · retrieval eval with `recall@k / MRR / nDCG` + bootstrap CIs · multi-pod-safe JWT revocation · Redis-backed daily cost circuit-breaker
 **Live demo:** [resumeforge-bg29.onrender.com](https://resumeforge-bg29.onrender.com)
 
 ---
