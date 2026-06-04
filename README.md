@@ -75,11 +75,13 @@ pip install schema-firewall
 | `check_schema` | post-outcome columns leaking into training inputs |
 | `check_stateless` | dataset-wide transforms applied outside cross-validation folds |
 
-### 🧩 [rag-llm-infra](https://github.com/MarwaBS/rag-llm-infra)
-Vendor-neutral RAG/LLM serving layer — `LLMProtocol` (OpenAI / Anthropic-stub / Mock)
-and `VectorStoreProtocol` (FAISS / NumPy / Qdrant), cached embedding index,
-OpenTelemetry, structured logging, and a runnable end-to-end RAG example. Typed,
-hermetically tested, **green CI**.
+### 🧩 [rag-llm-infra](https://github.com/MarwaBS/rag-llm-infra) — installable RAG/LLM infrastructure
+A pip-installable, vendor-neutral RAG/LLM serving layer: `LLMProtocol`
+(OpenAI / Anthropic-stub / Mock) with a budget-aware multi-provider `FallbackLLM`,
+`VectorStoreProtocol` (FAISS / NumPy / Qdrant), a cached embedding index, a FastAPI
+serving layer (`/index` · `/query`), OpenTelemetry + structured logging, and **two
+CI quality gates** — retrieval (recall@1 / MRR) and generation faithfulness
+(groundedness). Typed, packaged (hatchling), Docker-shipped, **green CI**.
 
 ---
 
