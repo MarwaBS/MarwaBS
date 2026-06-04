@@ -4,22 +4,22 @@ Building production-grade ML systems — evidence-grounded LLMs, calibrated quan
 models, hybrid decision engines — with the MLOps surface (observability,
 supply-chain, drift) that keeps them honest.
 
-📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwa-ben-salem-573465b6](https://www.linkedin.com/in/marwa-ben-salem-573465b6)  ·  📦 [pypi.org/project/schema-firewall](https://pypi.org/project/schema-firewall/)
+📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwa-ben-salem-573465b6](https://www.linkedin.com/in/marwa-ben-salem-573465b6)  ·  📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
 ---
 
 ## Featured projects
 
 ### 🧠 Production RAG Platform — evidence-grounded LLM generation
-**Architecture & deployment:** [production-rag-platform](https://github.com/MarwaBS/production-rag-platform)  ·  **Open infra (runnable code · green CI):** [rag-llm-infra](https://github.com/MarwaBS/rag-llm-infra)  ·  **Live demo:** [resumeforge-bg29.onrender.com](https://resumeforge-bg29.onrender.com)
+**Runnable reference service + deployment:** [production-rag-platform](https://github.com/MarwaBS/production-rag-platform)  ·  **Open infra on PyPI:** [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)  ·  **Live demo:** [resumeforge-bg29.onrender.com](https://resumeforge-bg29.onrender.com)
 
 A production retrieval-augmented generation service that grounds every generated
 claim in the user's own input, served behind a typed FastAPI gateway with full
 delivery infrastructure.
 
 **Stack:** FastAPI · Pydantic v2 · Redis · FAISS / Qdrant · OpenAI · OpenTelemetry · Prometheus · Helm / Kubernetes · Docker
-**Highlights:** vendor-neutral `LLMProtocol` + `VectorStoreProtocol` (FAISS / NumPy / Qdrant) open-sourced with a hermetic test suite and **green CI** · Kubernetes Helm chart (Deployment / HPA / PDB / Ingress / ServiceAccount) · multi-stage non-root Docker (Trivy-scanned) · multi-job CI/CD (lint · security · test · integration · evaluation gate · helm-lint · image scan) · OpenTelemetry tracing + structured JSON logs that degrade to no-ops when optional infra is absent
-> Application internals are private; the architecture is documented and the reusable infrastructure layer is open-sourced with runnable code + tests.
+**Highlights:** a **runnable reference service** (FastAPI: typed config · Prometheus `/metrics` · `/health` + `/ready` · integration tests) built on the published `rag-llm-infra` package · **Dockerfile that builds + publishes to GHCR (CD)** + Helm chart (Deployment / HPA / PDB / Ingress / ServiceAccount) · vendor-neutral `LLMProtocol` + `VectorStoreProtocol` (FAISS / NumPy / Qdrant) with **two CI quality gates** (retrieval recall@1/MRR + generation faithfulness) · OpenTelemetry tracing + structured JSON logs
+> The product's proprietary generation logic stays private — but both the reusable library (`rag-llm-infra`, on PyPI) and a runnable, CI/CD'd reference deployment (`production-rag-platform`) are public and inspectable.
 
 ---
 
@@ -75,8 +75,8 @@ pip install schema-firewall
 | `check_schema` | post-outcome columns leaking into training inputs |
 | `check_stateless` | dataset-wide transforms applied outside cross-validation folds |
 
-### 🧩 [rag-llm-infra](https://github.com/MarwaBS/rag-llm-infra) — installable RAG/LLM infrastructure
-A pip-installable, vendor-neutral RAG/LLM serving layer: `LLMProtocol`
+### 🧩 [rag-llm-infra](https://github.com/MarwaBS/rag-llm-infra) — RAG/LLM infrastructure ([on PyPI](https://pypi.org/project/rag-llm-infra/))
+**`pip install rag-llm-infra`** — a vendor-neutral RAG/LLM serving layer: `LLMProtocol`
 (OpenAI / Anthropic-stub / Mock) with a budget-aware multi-provider `FallbackLLM`,
 `VectorStoreProtocol` (FAISS / NumPy / Qdrant), a cached embedding index, a FastAPI
 serving layer (`/index` · `/query`), OpenTelemetry + structured logging, and **two
