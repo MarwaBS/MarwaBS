@@ -18,7 +18,7 @@ claim in the user's own input, served behind a typed FastAPI gateway with full
 delivery infrastructure.
 
 **Stack:** FastAPI · Pydantic v2 · Redis · FAISS / Qdrant · OpenAI · OpenTelemetry · Prometheus · Helm / Kubernetes · Docker
-**Highlights:** a **runnable reference service** (FastAPI: typed config · Prometheus `/metrics` · `/health` + `/ready` · integration tests) built on the published `rag-llm-infra` package · **Dockerfile that builds + publishes to GHCR (CD)** + Helm chart (Deployment / HPA / PDB / Ingress / ServiceAccount) · vendor-neutral `LLMProtocol` + `VectorStoreProtocol` (FAISS / NumPy / Qdrant) with **two CI quality gates** (retrieval recall@1/MRR + generation faithfulness) · OpenTelemetry tracing + structured JSON logs
+**Highlights:** a **runnable reference service** (FastAPI: typed config · Prometheus `/metrics` · `/health` + `/ready` · integration tests) built on the published `rag-llm-infra` package — vendor-neutral `LLMProtocol` + `VectorStoreProtocol` (NumPy default · FAISS / Qdrant optional), whose own CI enforces **two eval gates** (retrieval recall@1/MRR + generation faithfulness) · **this repo's CI/CD:** lint · mypy · integration tests · Helm lint + render · hadolint · **Trivy image scan → CycloneDX SBOM → push to GHCR** · Helm chart (Deployment / HPA / PDB / Ingress / ServiceAccount) · OpenTelemetry tracing + structured JSON logs
 > The product's proprietary generation logic stays private — but both the reusable library (`rag-llm-infra`, on PyPI) and a runnable, CI/CD'd reference deployment (`production-rag-platform`) are public and inspectable.
 
 ---
@@ -40,7 +40,7 @@ outcomes accrue. **Determinism formally verified to `1e-9` across local, CI, and
 `PRICE_PER_SQFT` leakage that had inflated v1 to R² = 0.997.
 
 **Stack:** XGBoost · PyTorch · scikit-learn Pipelines · Optuna · SHAP · FastAPI · Streamlit · DVC · MLflow
-**Highlights:** macro-F1 = 0.724 with per-class threshold tuning (+0.020 over argmax) · SHAP explainability · fairness-by-borough diagnostic · `assert_no_leakage()` enforced in CI · multi-stage Docker + Trivy + CycloneDX SBOM + Dependabot
+**Highlights:** macro-F1 = 0.724 via per-class threshold tuning (0.711 → 0.724) · SHAP explainability · fairness-by-borough diagnostic · `assert_no_leakage()` enforced in CI · multi-stage Docker + Trivy + CycloneDX SBOM + Dependabot
 **Run:** `docker compose up --build` *(or the Streamlit app locally)*
 
 ---
@@ -110,4 +110,4 @@ CI quality gates** — retrieval (recall@1 / MRR) and generation faithfulness
 - Maintaining `schema-firewall` as a public PyPI library extracted from production code.
 - Building vendor-neutral RAG/LLM infrastructure (`rag-llm-infra`, `production-rag-platform`).
 
-<sub>Last updated: 2026-06-04 · Repos CI-verified on HEAD · MIT-licensed</sub>
+<sub>Last updated: 2026-06-18 · All repos independently re-audited & CI-verified on HEAD · MIT-licensed</sub>
