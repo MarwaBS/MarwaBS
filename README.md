@@ -1,55 +1,69 @@
 # Marwa Bensalem
-**AI/ML Engineer · Production Systems · MLOps**
-Building production-grade ML systems — evidence-grounded LLMs, calibrated quantile
-models, hybrid decision engines — with the MLOps surface (observability,
-supply-chain, drift) that keeps them honest.
 
+**Senior AI/ML Engineer** · Production LLM Systems · RAG · MLOps
 
-📫 `marwabensalem30@gmail.com`  ·  🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem)  ·  📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
+I build production AI systems that verify their own outputs. Four years running enterprise HRIS/payroll at ADP taught me what breaks at 3am — and why most "AI tools" aren't production systems. Now I build the kind that are.
 
+📫 `marwabensalem30@gmail.com` · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
 ---
 
+## Shipped systems
 
-## Featured projects
+### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
+Deterministic 5-signal job scorer with a bounded LLM reasoning layer. Same input → same output, always — determinism verified to 1e-9 across local, CI, and HuggingFace production. 261 hermetic tests in ~1s. Evaluation gate locked until 50 real outcomes accumulate (no fake metrics).
 
+**Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
-### 🧠 Production RAG Platform — evidence-grounded LLM generation
-**Runnable reference service + deployment:** [production-rag-platform](https://github.com/MarwaBS/production-rag-platform)  ·  **Open infra on PyPI:** [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)  ·  **Live demo:** [resumeforge-bg29.onrender.com](https://resumeforge-bg29.onrender.com)
-
-
-A production retrieval-augmented generation service that grounds every generated
-claim in the user's own input, served behind a typed FastAPI gateway with full
-delivery infrastructure.
-
-
-**Stack:** FastAPI · Pydantic v2 · Redis · FAISS / Qdrant · OpenAI · OpenTelemetry · Prometheus · Helm / Kubernetes · Docker
-**Highlights:** a **runnable reference service** (FastAPI: typed config · Prometheus `/metrics` · `/health` + `/ready` · integration tests) built on the published `rag-llm-infra` package — vendor-neutral `LLMProtocol` + `VectorStoreProtocol` (NumPy default · FAISS / Qdrant optional), whose own CI enforces **two eval gates** (retrieval recall@1/MRR + generation faithfulness) · **this repo's CI/CD:** lint · mypy · integration tests · Helm lint + render · hadolint · **Trivy image scan → CycloneDX SBOM → push to GHCR** · Helm chart (Deployment / HPA / PDB / Ingress / ServiceAccount) · OpenTelemetry tracing + structured JSON logs
-> The product's proprietary generation logic stays private — but both the reusable library (`rag-llm-infra`, on PyPI) and a runnable, CI/CD'd reference deployment (`production-rag-platform`) are public and inspectable.
-
+**Engineering signals:** Architecture-as-Contract · append-only audit log · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy
 
 ---
 
+### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) · [Live demo →](https://resumeforge-bg29.onrender.com)
+Multi-tenant RAG infrastructure grounding every generated claim in the user's own input. Full production observability: hallucination guards, drift detection, cost circuit-breaker. Published as [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) on PyPI.
 
-### ⚖️ [Job_Decision_Engine](https://github.com/MarwaBS/Job_Decision_Engine) — deterministic decision system
-Hybrid 5-signal weighted scorer + bounded LLM reasoning layer with locked weights,
-an append-only audit log, and an evaluation gate intentionally inert until real
-outcomes accrue. **Determinism formally verified to `1e-9` across local, CI, and Hugging Face Spaces.**
+**Stack:** FastAPI · LangChain · OpenAI · FAISS/Qdrant · Redis · MongoDB · Pydantic v2 · OpenTelemetry · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-
-**Stack:** Pydantic v2 · sentence-transformers · OpenAI · MongoDB Atlas · Streamlit · Docker · GitHub Actions · Hugging Face Spaces
-**Highlights:** Architecture-as-Contract (immutable design doc + execution rules) · hermetic invariant test suite · `decision_trace` with counterfactual sensitivity replay + dominant-signal coding · Protocol-based Mongo / LLM / embedding abstractions · CI with auto-deploy to Hugging Face Spaces on merge
-**Live demo:** [huggingface.co/spaces/MarwaBS/job-decision-engine](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
-
+**Engineering signals:** 7-job CI (Trivy scan · CycloneDX SBOM · perf regression gate · Dependabot · privacy audit) · vendor-neutral LLMProtocol + VectorStoreProtocol · Helm + HPA on Kubernetes · 90%+ test coverage
 
 ---
 
+### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor)
+4-model ensemble (XGBoost · LightGBM · Random Forest · PyTorch) on 4,504 NYC listings. **Honest R² = 0.815** — I found and documented my own data leakage that inflated v1 to R²=0.997, then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI.
 
-### 📊 [nyc-real-estate-predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) — price-zone classification + regression
-4-model comparison (XGBoost · LightGBM · Random Forest · multi-task PyTorch) on
-4,504 cleaned NYC listings. **Honest R² = 0.815** — documents the removal of the
-`PRICE_PER_SQFT` leakage that had inflated v1 to R² = 0.997.
+**Stack:** XGBoost · PyTorch · scikit-learn · Optuna · SHAP · FastAPI · Streamlit · DVC · MLflow · Docker
 
+**Engineering signals:** ADR-001 documents the leakage removal · CI-enforced leakage guard (test_no_leakage.py) · sealed external benchmark on NYC.gov 2024 data · 88%+ test coverage gate
 
-**Stack:** XGBoost · PyTorch · scikit-learn Pipelines · Optuna · SHAP · FastAPI · Streamlit · DVC · MLflow
+---
 
+### 💼 [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
+Multi-quantile XGBoost (P10/P50/P90) on BLS OEWS + Census microdata. Calibrated uncertainty, not point estimates. Distributed Redis-backed drift monitor, scheduled weekly retraining pipeline, Prometheus observability, Kubernetes manifests.
+
+**Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
+
+**Engineering signals:** 170+ tests · composite model provenance string · /predict p99 < 200ms SLO enforced in CI · Dependabot + pip-audit CVE gate · scheduled retraining via GitHub Actions
+
+---
+
+## Open-source libraries
+
+| Package | What it does |
+|---|---|
+| [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG + LLM serving infrastructure: swappable LLM protocol and vector store, cached embedding index, OpenTelemetry tracing |
+| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | Three checks that catch the data leakage and schema bugs that slip past peer review — documented against JAMA, Nature Communications, and Kaggle Santander patterns |
+
+---
+
+## Stack
+
+```
+LLM / AI      Python · LangChain · OpenAI API · HuggingFace · sentence-transformers · XGBoost · PyTorch · scikit-learn
+MLOps         Docker · Kubernetes · Helm · GitHub Actions · Prometheus · OpenTelemetry · DVC · MLflow
+Backend       FastAPI · Pydantic v2 · Redis · MongoDB · FAISS · Qdrant
+Security      Trivy · CycloneDX SBOM · Dependabot · pip-audit
+```
+
+---
+
+*Open to founding-engineer or staff IC roles in production AI and MLOps. NYC.*
