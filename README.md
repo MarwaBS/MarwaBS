@@ -15,7 +15,7 @@ Job scorer with a deterministic core and a bounded LLM reasoning layer. On the L
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
-**Engineering signals:** append-only audit log — every decision recorded with its exact signals and weights, so any past verdict can be re-derived · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy to the Space · weekly scheduled security re-audit + live-Space health probe
+**Engineering signals:** append-only audit log — every decision recorded with its exact signals and weights, so any past verdict can be re-derived · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy to the Space · weekly scheduled security re-scan + live-Space health probe
 
 ---
 
@@ -42,7 +42,7 @@ Multi-quantile XGBoost (P10/P50/P90) on BLS OEWS + US Census microdata. Calibrat
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 197 tests · 88% coverage gate (92% actual) · /predict p99 < 200ms SLO enforced in CI · release artifacts machine-checked against the serving config · Dependabot + pip-audit CVE gate · auto-deploy to the Space with a weekly drift guard
+**Engineering signals:** 222 tests · 88% coverage gate (92% actual) · /predict p99 < 200ms SLO enforced in CI · release artifacts machine-checked against the serving config · Dependabot + pip-audit CVE gate · auto-deploy to the Space with a weekly drift guard
 
 ---
 
