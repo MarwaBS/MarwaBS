@@ -29,11 +29,11 @@ Runnable reference RAG service built on my published [`rag-llm-infra`](https://p
 ---
 
 ### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
-XGBoost · LightGBM · Random Forest · PyTorch multi-task on 4,504 NYC listings. **Honest R² = 0.815** — I found and documented my own data leakage that had inflated v1 to R² = 0.997 (ADR-001), then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI. Anyone can re-verify me: the external benchmark re-runs against public NYC.gov 2024 Rolling Sales data (18,314 real sales) under a sealed schema contract.
+XGBoost · LightGBM · Random Forest compared on a validation split (fixed hyperparameters — no tuning) on 4,526 NYC listings. **Honest test R² = 0.835** (0.814 ± 0.028 over 20 seeds) — I found and documented my own data leakage that had inflated v1 to R² = 0.997 (ADR-001), then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI. Anyone can re-verify me: the external benchmark re-runs against public NYC.gov 2024 Rolling Sales data (18,321 real sales) under a sealed schema contract.
 
-**Stack:** XGBoost · PyTorch · scikit-learn · Optuna · SHAP · FastAPI · Streamlit · DVC · MLflow · Docker
+**Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 88% coverage gate (94% actual) · reproducible external benchmark in CI
+**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 78% coverage gate (~89% actual) · 29-mutation harness proving every gate can fail · reproducible external benchmark in CI
 
 ---
 
