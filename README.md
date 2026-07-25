@@ -15,7 +15,7 @@ Job scorer with a deterministic core and a bounded LLM reasoning layer. On the L
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
-**Engineering signals:** append-only audit log — every decision recorded with its exact signals and weights, so any past verdict can be re-derived · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy to the Space · weekly scheduled security re-audit + live-Space health probe
+**Engineering signals:** append-only audit log — every decision recorded with its exact signals and weights, so any past verdict can be re-derived · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy to the Space · weekly scheduled security re-scan + live-Space health probe
 
 ---
 
@@ -29,11 +29,11 @@ Runnable reference RAG service built on my published [`rag-llm-infra`](https://p
 ---
 
 ### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
-XGBoost · LightGBM · Random Forest · PyTorch multi-task on 4,504 NYC listings. **Honest R² = 0.815** — I found and documented my own data leakage that had inflated v1 to R² = 0.997 (ADR-001), then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI. Anyone can re-verify me: the external benchmark re-runs against public NYC.gov 2024 Rolling Sales data (18,314 real sales) under a sealed schema contract.
+XGBoost regressor with LightGBM / Random Forest candidates (fixed hyperparameters — no tuning) on 4,526 NYC listings. **Honest test R² = 0.835** — I found and documented my own data leakage that had inflated v1 to R² = 0.997 (ADR-001), then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI. Anyone can re-verify me: the external benchmark re-runs against public NYC.gov 2024 Rolling Sales data (18,321 real sales) under a sealed schema contract.
 
-**Stack:** XGBoost · PyTorch · scikit-learn · Optuna · SHAP · FastAPI · Streamlit · DVC · MLflow · Docker
+**Stack:** XGBoost · LightGBM · scikit-learn · category-encoders · SHAP · FastAPI · Streamlit · Docker
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 88% coverage gate (94% actual) · reproducible external benchmark in CI
+**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 78% coverage gate (~89% actual) · 29-mutation harness proving every gate can fail · reproducible external benchmark in CI
 
 ---
 
@@ -42,7 +42,7 @@ Multi-quantile XGBoost (P10/P50/P90) on BLS OEWS + US Census microdata. Calibrat
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 197 tests · 88% coverage gate (92% actual) · /predict p99 < 200ms SLO enforced in CI · release artifacts machine-checked against the serving config · Dependabot + pip-audit CVE gate · auto-deploy to the Space with a weekly drift guard
+**Engineering signals:** 222 tests · 88% coverage gate (92% actual) · /predict p99 < 200ms SLO enforced in CI · release artifacts machine-checked against the serving config · Dependabot + pip-audit CVE gate · auto-deploy to the Space with a weekly drift guard
 
 ---
 
