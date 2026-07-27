@@ -11,7 +11,7 @@ I build production AI systems that verify their own outputs. Four years running 
 ## Shipped systems
 
 ### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
-Job scorer with a deterministic core and a bounded LLM reasoning layer. On the LLM-free path (the public demo): same input → same output, every time — verified to 1e-9 in local and CI runs. The LLM signal is capped at 25% of the score, and the UI banner is reconciled against a live API ping at boot — it can never claim an LLM that isn't actually answering. 350 hermetic tests in under 3 seconds. Evaluation gate stays locked until 50 real outcomes accumulate (no fake metrics).
+Job scorer with a deterministic core and a bounded LLM reasoning layer. On the LLM-free path (the public demo): same input → same output, every time — verified to 1e-9 in local and CI runs. The LLM signal is capped at 25% of the score, and the UI banner is reconciled against a live API ping at boot — it can never claim an LLM that isn't actually answering. 350 hermetic tests in about 3 seconds. Evaluation gate stays locked until 50 real outcomes accumulate (no fake metrics).
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
@@ -33,16 +33,16 @@ XGBoost · LightGBM · Random Forest compared on a validation split (fixed hyper
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 78% coverage gate (~89% actual) · 29-mutation harness proving every gate can fail · reproducible external benchmark in CI
+**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 220 tests, 78% coverage gate (88.85% actual) · **29-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; it started at 6 of 15 caught, which is how I learned a passing suite proves nothing · reproducible external benchmark in CI
 
 ---
 
 ### 💼 [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
-Multi-quantile XGBoost (P10/P50/P90) on BLS OEWS + US Census microdata. Calibrated uncertainty, not point estimates. Redis-backed distributed drift monitor, weekly scheduled retraining pipeline, Prometheus observability, Kubernetes manifests.
+One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEWS + US Census microdata. Calibrated uncertainty, not point estimates: the served interval is widened by a cross-conformal margin estimated on train-only folds, and the route that applies it is pinned by tests — dropping the margin turns the suite red instead of silently narrowing the interval. Redis-backed distributed drift monitor with a familywise-corrected alarm rate, weekly scheduled retraining, Prometheus observability, Kubernetes manifests.
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 222 tests · 88% coverage gate (92% actual) · /predict p99 < 200ms SLO enforced in CI · release artifacts machine-checked against the serving config · Dependabot + pip-audit CVE gate · auto-deploy to the Space with a weekly drift guard
+**Engineering signals:** 509 tests · 88% coverage gate (91.33% actual) · **every published metric is pinned to `model_metrics.json`** — corrupt a number in the README or model card and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch *or* a missing manifest · `/predict`, `/drift` and `/metrics` all behind the same key, auth resolving before the rate limiter · /predict p99 < 200ms SLO enforced in CI · training reproduces bit-identically from a clean tree · Dependabot + pip-audit CVE gate
 
 ---
 
@@ -51,7 +51,7 @@ Multi-quantile XGBoost (P10/P50/P90) on BLS OEWS + US Census microdata. Calibrat
 | Package | What it does |
 |---|---|
 | [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG + LLM serving infrastructure: swappable LLM protocol and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing |
-| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | Three checks that catch the data leakage and schema bugs that slip past peer review — documented against JAMA, Nature Communications, and Kaggle Santander patterns |
+| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the data leakage and schema bugs that slip past peer review, documented against JAMA, Nature Communications, and Kaggle Santander patterns. v0.2.1 restored exhaustive tail sampling after a 0.2.0 optimisation quietly capped it to the 20 highest-variance columns and re-opened a fail-open — a cross-row edit on a low-variance column was being missed on 18 of 20 seeds |
 
 ---
 
