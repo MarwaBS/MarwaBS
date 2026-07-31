@@ -46,12 +46,21 @@ One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEW
 
 ---
 
+### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
+Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 487 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. The locked constraint "a test for every documented failure mode" is not prose here: `tools/planted_defects.py` registers 14 documented failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 14 of 14 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: a coverage floor for the documented set, not a mutation score.
+
+**Stack:** numpy · pandas · scikit-learn — and nothing else, by design
+
+**Engineering signals:** 114 tests at 96.96% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+
+---
+
 ## Open-source libraries
 
 | Package | What it does |
 |---|---|
 | [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG + LLM serving infrastructure: swappable LLM protocol and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing |
-| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the data leakage and schema bugs that slip past peer review, documented against JAMA, Nature Communications, and Kaggle Santander patterns. v0.2.1 restored exhaustive tail sampling after a 0.2.0 optimisation quietly capped it to the 20 highest-variance columns and re-opened a fail-open — a cross-row edit on a low-variance column was being missed on 18 of 20 seeds |
+| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, documented against JAMA, Nature Communications, and Kaggle Santander patterns. v0.2.1 restored exhaustive tail sampling after a 0.2.0 optimisation quietly capped it to the 20 highest-variance columns and re-opened a fail-open — a cross-row edit on a low-variance column was being missed on 18 of 20 seeds |
 
 ---
 
@@ -59,7 +68,7 @@ One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEW
 
 ```
 LLM / AI      Python · OpenAI API · HuggingFace · sentence-transformers · XGBoost · PyTorch · scikit-learn
-MLOps         Docker · Kubernetes · Helm · GitHub Actions · Prometheus · OpenTelemetry · DVC · MLflow
+MLOps         Docker · Kubernetes · Helm · GitHub Actions · Prometheus · OpenTelemetry · MLflow
 Backend       FastAPI · Pydantic v2 · Redis · MongoDB · FAISS · Qdrant
 Security      Trivy · CycloneDX SBOM · Dependabot · pip-audit
 ```
