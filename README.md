@@ -47,7 +47,7 @@ One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEW
 ---
 
 ### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
-Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 487 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. The locked constraint "a test for every documented failure mode" is not prose here: `tools/planted_defects.py` registers 14 documented failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 14 of 14 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: a coverage floor for the documented set, not a mutation score.
+Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 487 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 14 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 14 of 14 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 14 modes — not a completeness proof, and not a mutation score.
 
 **Stack:** numpy · pandas · scikit-learn — and nothing else, by design
 
