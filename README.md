@@ -67,7 +67,7 @@ Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the 
 ## Stack
 
 ```
-LLM / AI      Python · OpenAI API · HuggingFace · sentence-transformers · XGBoost · scikit-learn
+LLM / AI      Python · OpenAI API · HuggingFace · sentence-transformers · XGBoost · PyTorch · scikit-learn
 MLOps         Docker · Kubernetes · Helm · GitHub Actions · Prometheus · OpenTelemetry · MLflow
 Backend       FastAPI · Pydantic v2 · Redis · MongoDB · FAISS · Qdrant
 Security      Trivy · CycloneDX SBOM · Dependabot · pip-audit
