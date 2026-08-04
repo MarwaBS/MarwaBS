@@ -42,7 +42,7 @@ One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEW
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 509 tests · 88% coverage gate (91.33% actual) · **every published metric is pinned to `model_metrics.json`** — corrupt a number in the README or model card and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch *or* a missing manifest · `/predict`, `/drift` and `/metrics` all behind the same key, auth resolving before the rate limiter · /predict p99 < 200ms SLO enforced in CI · training reproduces bit-identically from a clean tree · Dependabot + pip-audit CVE gate
+**Engineering signals:** 648 tests · 88% coverage gate (92.81% actual) · **every published metric is pinned to the file that produced it** — corrupt a number in the README, the model card or the design record and CI fails, and the README's data findings are recomputed from the CSV · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch *or* a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, auth resolving before the rate limiter · /predict p99 < 200ms SLO enforced in CI · training reproduces bit-identically **on the same machine** — across machines the drift is unmeasured, and the repo says so rather than claiming otherwise · Dependabot + pip-audit CVE gate
 
 ---
 
