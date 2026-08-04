@@ -20,11 +20,11 @@ Job scorer with a deterministic core and a bounded LLM reasoning layer. On the L
 ---
 
 ### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
-Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package: swappable vector store, API-key-protected data plane, Prometheus metrics, structured JSON logs, and a retrieval-recall eval gate in CI that can actually fail. The README draws an explicit public/private boundary — a private flagship built on the same design stays private; everything claimed in this repo runs with `pip install`.
+Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package: swappable vector store, API-key-protected data plane, Prometheus metrics, structured JSON logs, and a retrieval-recall eval gate in CI that can actually fail. The README draws an explicit public/private boundary — a separate private product built on the same design stays private; everything claimed in this repo runs with `pip install`.
 
-**Stack:** FastAPI · rag-llm-infra · OpenAI · FAISS/Qdrant (optional extras) · Pydantic v2 · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
+**Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-**Engineering signals:** CI: tests → retrieval-recall eval floor → Trivy image scan → CycloneDX SBOM · vendor-neutral LLMProtocol + VectorStoreProtocol · Helm chart with HPA, ingress off by default · optional backends fail fast with the exact `pip install` hint
+**Engineering signals:** the test step is a checker that starts the run itself and reads the report *that run wrote*, so a skipped or forged suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and re-derived byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned rather than rebuilding one · vendor-neutral LLMProtocol + VectorStoreProtocol · the ingress refuses to render without TLS and an API key · optional backends fail fast with the exact `pip install` hint
 
 ---
 
