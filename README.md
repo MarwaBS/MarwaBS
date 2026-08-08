@@ -24,7 +24,7 @@ The gate that watches the external benchmark only ever compared R². An R² over
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** 306 tests at an 85% coverage gate, 89.89% actual · **70-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
+**Engineering signals:** 304 tests at an 85% coverage gate, 89.89% actual · **68-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score drifts past a reviewed band
 
 ---
 
