@@ -2,7 +2,7 @@
 
 **Senior AI/ML Engineer** · Production LLM Systems · RAG · MLOps
 
-I build production AI systems that verify their own outputs. Four years running enterprise HRIS/payroll at ADP taught me what breaks at 3am — and why most "AI tools" aren't production systems. Now I build the kind that are.
+I build production AI systems that check their own outputs. Four years on enterprise HRIS/payroll at ADP taught me what breaks at 3am. Most "AI tools" are not production systems. I build the kind that are.
 
 📫 `marwabensalem30@gmail.com` · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
@@ -10,48 +10,71 @@ I build production AI systems that verify their own outputs. Four years running 
 
 ## Shipped systems
 
-### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
-Job scorer with a deterministic core and a bounded LLM reasoning layer. On the LLM-free path (the public demo): same input → same output, every time — verified to 1e-9 in local and CI runs. The LLM signal is capped at 25% of the score, and the UI banner is reconciled against a live API ping at boot — it can never claim an LLM that isn't actually answering. 350 hermetic tests in about 3 seconds. Evaluation gate stays locked until 50 real outcomes accumulate (no fake metrics).
-
-**Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
-
-**Engineering signals:** append-only audit log — every decision recorded with its exact signals and weights, so any past verdict can be re-derived · protocol-based LLM/DB abstractions · CI: privacy audit → tests → lint → auto-deploy to the Space · weekly scheduled security re-scan + live-Space health probe
-
----
-
-### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
-Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package: swappable vector store, API-key-protected data plane, Prometheus metrics, structured JSON logs, and a retrieval-recall eval gate in CI that can actually fail. The README draws an explicit public/private boundary — a separate private product built on the same design stays private; everything claimed in this repo runs with `pip install`.
-
-**Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
-
-**Engineering signals:** the test step is a checker that starts the run itself and reads the report *that run wrote*, so a skipped or forged suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and re-derived byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned rather than rebuilding one · vendor-neutral LLMProtocol + VectorStoreProtocol · the ingress refuses to render without TLS and an API key · optional backends fail fast with the exact `pip install` hint
-
----
-
 ### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
-XGBoost · LightGBM · Random Forest compared on a validation split (fixed hyperparameters — no tuning) on 4,526 NYC listings. **Honest test R² = 0.835** (0.814 ± 0.028 over 20 seeds) — I found and documented my own data leakage that had inflated v1 to R² = 0.997 (ADR-001), then extracted the fix as [`schema-firewall`](https://pypi.org/project/schema-firewall/) on PyPI. Anyone can re-verify me: the external benchmark re-runs against public NYC.gov 2024 Rolling Sales data (18,321 real sales) under a sealed schema contract.
+
+My first version scored R² = 0.997. It was wrong. `PRICE_PER_SQFT` was in the feature list, so the model was reading the target back out of its own input. I wrote that up as ADR-001 and removed the feature. The honest number came back at **0.835**, or 0.814 ± 0.028 across 20 seeds. Then I pulled the guard out into [`schema-firewall`](https://pypi.org/project/schema-firewall/) so it could not happen to me again.
+
+Two more things this repo taught me the hard way.
+
+Every estimator was built with `n_jobs=-1`. Thread count decides the order the float sums land, so two runs of one commit on the same CI runner scored val R² 0.7740 and 0.7719. The top two candidates sat 0.0029 apart. That noise was enough to flip which model shipped, so a Linux runner published LightGBM while my laptop published XGBoost. The fix was `n_jobs=1` and recording the choice instead of re-deriving it every run.
+
+The headline is also scored against a capped target. IQR bounds are fitted on train, correctly, but they apply to every row, so 72 of 906 test prices are clipped before scoring. Against listed prices the same model gets **0.7883**. Both numbers sit next to each other in the README, because only quoting the better one would be a lie by omission.
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 304 tests, 85% coverage gate (89.89% actual) · **68-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; entries were added each time a gate turned out to be walkable, so the registry is a record of what a passing suite had already missed · reproducible external benchmark in CI
-
----
-
-### 💼 [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
-One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEWS + US Census microdata. Calibrated uncertainty, not point estimates: the served interval is widened by a cross-conformal margin estimated on train-only folds, and the route that applies it is pinned by tests — dropping the margin turns the suite red instead of silently narrowing the interval. Redis-backed distributed drift monitor with a familywise-corrected alarm rate, weekly scheduled retraining, Prometheus observability, Kubernetes manifests.
-
-**Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
-
-**Engineering signals:** 648 tests · 88% coverage gate (92.81% actual) · **every published metric is pinned to the file that produced it** — corrupt a number in the README, the model card or the design record and CI fails, and the README's data findings are recomputed from the CSV · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch *or* a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, auth resolving before the rate limiter · /predict p99 < 200ms SLO enforced in CI · training reproduces bit-identically **on the same machine** — across machines the drift is unmeasured, and the repo says so rather than claiming otherwise · Dependabot + pip-audit CVE gate
+**Engineering signals:** 304 tests at an 85% coverage gate, 89.89% actual · **68-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract
 
 ---
 
 ### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
-Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 496 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 20 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 20 modes — not a completeness proof, and not a mutation score.
 
-**Stack:** numpy · pandas · scikit-learn — and nothing else, by design
+Three checks: `check_leakage`, `check_schema`, `check_stateless`. 496 lines. Three dependencies. Four Python versions in CI.
 
-**Engineering signals:** 125 tests at 97.06% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+The interesting part is not the checks. It is that this library has shipped two fail-opens of its own, and both are recorded in the changelog rather than quietly patched. In 0.2.0 a speed change capped tail sampling to the 20 highest-variance columns. That re-opened a hole 0.1.3 had closed. A cross-row edit on a low-variance column was missed on about 18 of 20 seeds. A later one shared a NaN sampling budget across columns, so the dirtiest column spent it and the column that leaked went unchecked.
+
+That is why `tools/planted_defects.py` exists. It registers 20 failure modes, turns each behaviour off in a throwaway copy, and requires the named tests to go red. 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart.
+
+The claim is scoped on purpose. The check runs from the registry outwards, so it is a coverage floor for those 20 modes. Not a completeness proof. Not a mutation score.
+
+**Stack:** numpy · pandas · scikit-learn, and nothing else, by design
+
+**Engineering signals:** 125 tests at 97.06% branch coverage · the 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly · used downstream as a pinned dependency by the NYC benchmark · that pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+
+---
+
+### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
+
+Job scorer with a fixed core and a bounded LLM layer. Same input, same output, checked to 1e-9. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
+
+**Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
+
+**Engineering signals:** append-only audit log; every decision is recorded with its signals and weights, so any past verdict can be rebuilt · protocol-based LLM and DB interfaces · CI runs privacy audit, then tests and lint, then deploys · weekly security re-scan and live-Space health probe
+
+---
+
+### 💼 [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
+
+One multi-quantile XGBoost model serving P10, P50 and P90 from a single artifact, on BLS OEWS and US Census microdata. It returns calibrated ranges, not point estimates. The served interval is widened by a cross-conformal margin estimated on train-only folds, and the route that applies it is pinned by tests. Drop the margin and the suite goes red instead of quietly narrowing the interval.
+
+It also ships a Redis-backed distributed drift monitor with a familywise-corrected alarm rate, weekly scheduled retraining, Prometheus observability and Kubernetes manifests.
+
+Training repeats bit-identically on the same machine. Across machines the drift is unmeasured, and the repo says so.
+
+**Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
+
+**Engineering signals:** 648 tests at an 88% coverage gate, 92.81% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
+
+---
+
+### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
+
+Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package. Swappable vector store. API-key-protected data plane. Prometheus metrics and structured JSON logs. The retrieval-recall eval gate in CI can actually fail.
+
+The README draws a clear public/private line. A separate private product is built on the same design and stays private. Everything claimed in this repo runs with `pip install`.
+
+**Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
+
+**Engineering signals:** the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and rebuilt byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
 
 ---
 
@@ -59,8 +82,8 @@ Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the 
 
 | Package | What it does |
 |---|---|
-| [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG + LLM serving infrastructure: swappable LLM protocol and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing |
-| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, documented against JAMA, Nature Communications, and Kaggle Santander patterns. v0.2.1 restored exhaustive tail sampling after a 0.2.0 optimisation quietly capped it to the 20 highest-variance columns and re-opened a fail-open — a cross-row edit on a low-variance column was being missed on 18 of 20 seeds |
+| [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG and LLM serving infrastructure: swappable LLM interface and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing |
+| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, written against JAMA, Nature Communications and Kaggle Santander patterns |
 
 ---
 
