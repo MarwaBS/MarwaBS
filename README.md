@@ -33,7 +33,7 @@ XGBoost · LightGBM · Random Forest compared on a validation split (fixed hyper
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 220 tests, 78% coverage gate (88.85% actual) · **29-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; it started at 6 of 15 caught, which is how I learned a passing suite proves nothing · reproducible external benchmark in CI
+**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 304 tests, 85% coverage gate (89.89% actual) · **68-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; entries were added each time a gate turned out to be walkable, so the registry is a record of what a passing suite had already missed · reproducible external benchmark in CI
 
 ---
 
@@ -47,11 +47,11 @@ One multi-quantile XGBoost model (P10/P50/P90 from a single artifact) on BLS OEW
 ---
 
 ### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
-Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 487 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 14 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 14 of 14 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 14 modes — not a completeness proof, and not a mutation score.
+Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 496 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 20 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 20 modes — not a completeness proof, and not a mutation score.
 
 **Stack:** numpy · pandas · scikit-learn — and nothing else, by design
 
-**Engineering signals:** 114 tests at 96.96% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+**Engineering signals:** 125 tests at 97.06% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
 
 ---
 
