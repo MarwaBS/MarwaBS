@@ -46,9 +46,7 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 Job scorer with a fixed core and a bounded LLM layer. Same input, same output, checked to 1e-9. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
 
-**Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
-
-**Engineering signals:** append-only audit log; every decision is recorded with its signals and weights, so any past verdict can be rebuilt · protocol-based LLM and DB interfaces · CI runs privacy audit, then tests and lint, then deploys · weekly security re-scan and live-Space health probe
+**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 304 tests, 85% coverage gate (89.89% actual) · **68-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; entries were added each time a gate turned out to be walkable, so the registry is a record of what a passing suite had already missed · reproducible external benchmark in CI
 
 ---
 
@@ -66,7 +64,8 @@ Training repeats bit-identically on the same machine. Across machines the drift 
 
 ---
 
-### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
+### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
+Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 496 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 20 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 20 modes — not a completeness proof, and not a mutation score.
 
 Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package. Swappable vector store. API-key-protected data plane. Prometheus metrics and structured JSON logs. The retrieval-recall eval gate in CI can actually fail.
 
@@ -74,7 +73,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-**Engineering signals:** the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and rebuilt byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
+**Engineering signals:** 125 tests at 97.06% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
 
 ---
 
