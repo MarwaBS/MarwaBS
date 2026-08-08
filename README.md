@@ -22,15 +22,15 @@ The headline is also scored against a capped target. IQR bounds are fitted on tr
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** 304 tests at an 85% coverage gate, 89.89% actual · **68-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract
+**Engineering signals:** 304 tests at an 85% coverage gate, 89.89% actual · **68-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score drifts past a reviewed band
 
 ---
 
 ### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
 
-Three checks: `check_leakage`, `check_schema`, `check_stateless`. 496 lines. Three dependencies. Four Python versions in CI.
+Three checks: `check_leakage`, `check_schema`, `check_stateless`. 499 lines. Three dependencies. Four Python versions in CI.
 
-The interesting part is not the checks. It is that this library has shipped two fail-opens of its own, and both are recorded in the changelog rather than quietly patched. In 0.2.0 a speed change capped tail sampling to the 20 highest-variance columns. That re-opened a hole 0.1.3 had closed. A cross-row edit on a low-variance column was missed on about 18 of 20 seeds. A later one shared a NaN sampling budget across columns, so the dirtiest column spent it and the column that leaked went unchecked.
+The interesting part is not the checks. It is that this library has shipped three fail-opens of its own, and all three are recorded in the changelog rather than quietly patched. In 0.2.0 a speed change capped tail sampling to the 20 highest-variance columns. That re-opened a hole 0.1.3 had closed. A cross-row edit on a low-variance column was missed on about 18 of 20 seeds. A second shared a NaN sampling budget across columns, so the dirtiest column spent it and the column that leaked went unchecked. A third only sampled the frame the caller passed in, never the frame the pipeline returned, so winsorising a derived ratio slipped through on 14 of 40 seeds and a `duplicated()` flag on 40 of 40.
 
 That is why `tools/planted_defects.py` exists. It registers 20 failure modes, turns each behaviour off in a throwaway copy, and requires the named tests to go red. 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart.
 
@@ -38,7 +38,7 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 **Stack:** numpy · pandas · scikit-learn, and nothing else, by design
 
-**Engineering signals:** 125 tests at 97.06% branch coverage · the 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly · used downstream as a pinned dependency by the NYC benchmark · that pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+**Engineering signals:** 126 tests at 97.10% branch coverage · the 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly · used downstream as a pinned dependency by the NYC benchmark · that pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
 
 ---
 
@@ -46,7 +46,9 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 Job scorer with a fixed core and a bounded LLM layer. Same input, same output, checked to 1e-9. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
 
-**Engineering signals:** CI-enforced leakage guard (test_no_leakage.py) · SHA256-manifest model registry — the live Space serves exactly the audited artifacts, checked weekly by a drift guard · 304 tests, 85% coverage gate (89.89% actual) · **68-mutation harness** — CI breaks one behaviour at a time and fails the build unless a named test catches it; entries were added each time a gate turned out to be walkable, so the registry is a record of what a passing suite had already missed · reproducible external benchmark in CI
+**Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
+
+**Engineering signals:** append-only audit log; every decision is recorded with its signals and weights, so any past verdict can be rebuilt · protocol-based LLM and DB interfaces · CI runs privacy audit, then tests and lint, then deploys · weekly security re-scan and live-Space health probe
 
 ---
 
@@ -64,8 +66,7 @@ Training repeats bit-identically on the same machine. Across machines the drift 
 
 ---
 
-### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
-Three checks — `check_leakage`, `check_schema`, `check_stateless` — for the leakage and schema bugs that pass peer review. 496 lines of implementation under a 500-line budget a test enforces, three dependencies, four Python versions in CI. `tools/planted_defects.py` registers 20 failure modes, and running it disables each behaviour in a throwaway copy and requires the named tests to go red — 20 of 20 caught, controls green. A suite test fails the build if the registry, the docs and the tests drift apart. The claim is deliberately scoped: the check runs from the registry outwards, so it is a coverage floor for those 20 modes — not a completeness proof, and not a mutation score.
+### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
 
 Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package. Swappable vector store. API-key-protected data plane. Prometheus metrics and structured JSON logs. The retrieval-recall eval gate in CI can actually fail.
 
@@ -73,7 +74,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-**Engineering signals:** 125 tests at 97.06% branch coverage · LoC budget, dependency count and public surface all test-enforced, so the design constraints cannot rot silently · consumed downstream as a pinned dependency by the NYC benchmark, which re-runs it weekly against public NYC.gov data · the pin stays at 0.1.3 by documented decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+**Engineering signals:** the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and rebuilt byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
 
 ---
 
