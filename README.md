@@ -14,15 +14,17 @@ I build production AI systems that check their own outputs. Four years on enterp
 
 My first version scored R² = 0.997. It was wrong. `PRICE_PER_SQFT` was in the feature list, so the model was reading the target back out of its own input. I wrote that up as ADR-001 and removed the feature. The honest number came back at **0.835**, or 0.814 ± 0.028 across 20 seeds. Then I pulled the guard out into [`schema-firewall`](https://pypi.org/project/schema-firewall/) so it could not happen to me again.
 
-Two more things this repo taught me the hard way.
+Three more things this repo taught me the hard way.
 
 Every estimator was built with `n_jobs=-1`. Thread count decides the order the float sums land, so two runs of one commit on the same CI runner scored val R² 0.7740 and 0.7719. The top two candidates sat 0.0029 apart. That noise was enough to flip which model shipped, so a Linux runner published LightGBM while my laptop published XGBoost. The fix was `n_jobs=1` and recording the choice instead of re-deriving it every run.
 
 The headline is also scored against a capped target. IQR bounds are fitted on train, correctly, but they apply to every row, so 72 of 906 test prices are clipped before scoring. Against listed prices the same model gets **0.7883**. Both numbers sit next to each other in the README, because only quoting the better one would be a lie by omission.
 
+The gate that watches the external benchmark only ever compared R². An R² over 100 rows reads exactly like one over 18,321, so a run that quietly scored a different set of rows would have passed. I replayed it against the committed result and it returned pass at 12.7%, 42.9%, 50.0% and 99.5% loss of the scored population. It now bands the row count and requires the set of drop reasons to match. A live run then moved the population 0.9%, which is the real drift the band has to tolerate.
+
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** 304 tests at an 85% coverage gate, 89.89% actual · **68-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score drifts past a reviewed band
+**Engineering signals:** 306 tests at an 85% coverage gate, 89.89% actual · **70-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
 
 ---
 
