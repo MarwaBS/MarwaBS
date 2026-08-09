@@ -68,7 +68,7 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 653 tests at an 88% coverage gate, 92.84% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
+**Engineering signals:** 657 tests at an 88% coverage gate, 92.84% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
 
 ---
 
