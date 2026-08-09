@@ -10,8 +10,8 @@ I build production AI systems that check their own outputs. Four years on enterp
 |---|---|---|
 | [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 307 tests · 89.89% · 71 planted defects, all caught |
 | [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, 499 lines | 126 tests · 97.10% · 20 of 20 defects caught |
-| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 657 tests · 92.84% · 0 quantile crossings |
-| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 252 tests · 98.15% |
+| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 658 tests · 92.84% · 0 quantile crossings |
+| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 253 tests · 98.15% |
 | [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 350 tests in ~3s · LLM capped at 25% of the score |
 
 Every number above is produced by a committed file and checked in CI. If one drifts, the build fails.
@@ -96,7 +96,7 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 **Engineering signals**
 
-- **657 tests**, 88% coverage gate, 92.84% actual
+- **658 tests**, 88% coverage gate, 92.84% actual
 - **Every published metric is pinned to the file that produced it.** Corrupt a number in the README, the model card or the design record and CI fails
 - Every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise
 - Artifact integrity gate that refuses to start on a digest mismatch or a missing manifest
@@ -119,7 +119,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Engineering signals**
 
-- **252 tests**, 93% coverage gate, 98.15% actual
+- **253 tests**, 93% coverage gate, 98.15% actual
 - The test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green
 - The chunk window, the eval floors and the scale curve are derived by committed scripts. CI re-runs each producer and fails unless it returns the committed values
 - CI starts the built image in the configuration the Helm chart deploys, requires a missing key and a wrong key to both return 401 before it will exercise the keyed routes, then publishes the image it scanned
