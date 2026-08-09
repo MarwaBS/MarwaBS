@@ -14,7 +14,7 @@ I build production AI systems that check their own outputs. Four years on enterp
 | [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 253 tests · 98.15% |
 | [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 350 tests in ~3s · LLM capped at 25% of the score |
 
-Every number above is produced by a committed file and checked in CI. If one drifts, the build fails.
+Every number above comes from a committed file in its repo, and each repo fails its own build if its docs and that file disagree. This page is a hand-kept copy of those numbers, so treat the repo as the source of truth.
 
 ---
 
