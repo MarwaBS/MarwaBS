@@ -6,9 +6,21 @@ I build production AI systems that check their own outputs. Four years on enterp
 
 📫 `marwabensalem30@gmail.com` · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
+| Shipped | What it is | Proof |
+|---|---|---|
+| [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 307 tests · 89.89% · 71 planted defects, all caught |
+| [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, 499 lines | 126 tests · 97.10% · 20 of 20 defects caught |
+| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 657 tests · 92.84% · 0 quantile crossings |
+| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 252 tests · 98.15% |
+| [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 350 tests in ~3s · LLM capped at 25% of the score |
+
+Every number above is produced by a committed file and checked in CI. If one drifts, the build fails.
+
 ---
 
 ## Shipped systems
+
+*Each entry below is a failure I found in my own work, and what I changed. Skip to the bold numbers if you are short on time.*
 
 ### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
 
@@ -26,7 +38,12 @@ My leakage guard checks feature *names* for the word price. That is all it can d
 
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** 307 tests at an 85% coverage gate, 89.89% actual · **71-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
+**Engineering signals**
+
+- **307 tests**, 85% coverage gate, 89.89% actual
+- **71-mutation harness.** Each one breaks a single behaviour and the build fails unless a named test catches it. Every entry exists because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed
+- SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly
+- External benchmark against public NYC.gov 2024 Rolling Sales, **18,321 real sales** under a sealed schema contract. CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
 
 ---
 
@@ -42,7 +59,11 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 **Stack:** numpy · pandas · scikit-learn, and nothing else, by design
 
-**Engineering signals:** 126 tests at 97.10% branch coverage · the 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly · used downstream as a pinned dependency by the NYC benchmark · that pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
+**Engineering signals**
+
+- **126 tests**, 97.10% branch coverage
+- The 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly
+- Used downstream as a pinned dependency by the NYC benchmark. That pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
 
 ---
 
@@ -52,7 +73,12 @@ Job scorer with a fixed core and a bounded LLM layer. Same input, same output, c
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
-**Engineering signals:** append-only audit log; every decision is recorded with its signals and weights, so any past verdict can be rebuilt · protocol-based LLM and DB interfaces · CI runs privacy audit, then tests and lint, then deploys · weekly security re-scan and live-Space health probe
+**Engineering signals**
+
+- Append-only audit log. Every decision is recorded with its signals and weights, so any past verdict can be rebuilt
+- Protocol-based LLM and DB interfaces
+- CI runs a privacy audit, then tests and lint, then deploys
+- Weekly security re-scan and a live-Space health probe
 
 ---
 
@@ -68,7 +94,14 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 657 tests at an 88% coverage gate, 92.84% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
+**Engineering signals**
+
+- **657 tests**, 88% coverage gate, 92.84% actual
+- **Every published metric is pinned to the file that produced it.** Corrupt a number in the README, the model card or the design record and CI fails
+- Every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise
+- Artifact integrity gate that refuses to start on a digest mismatch or a missing manifest
+- `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter
+- **p99 under 200ms** on `/predict`, enforced in CI, plus Dependabot and a pip-audit CVE gate
 
 ---
 
@@ -84,7 +117,14 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-**Engineering signals:** 252 tests at a 93% coverage gate, 98.15% actual · the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window, the eval floors and the scale curve are derived by committed scripts, and CI re-runs each producer and fails unless it returns the committed values · CI starts the built image in the configuration the Helm chart deploys and requires a missing key and a wrong key to both come back 401 before it will exercise the keyed routes, then publishes the image it scanned · a separate job installs the optional backends and requires each one to construct, because a backend that is only ever refused is a backend nobody has run · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
+**Engineering signals**
+
+- **252 tests**, 93% coverage gate, 98.15% actual
+- The test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green
+- The chunk window, the eval floors and the scale curve are derived by committed scripts. CI re-runs each producer and fails unless it returns the committed values
+- CI starts the built image in the configuration the Helm chart deploys, requires a missing key and a wrong key to both return 401 before it will exercise the keyed routes, then publishes the image it scanned
+- A separate job installs the optional backends and requires each one to construct, because a backend that is only ever refused is a backend nobody has run
+- Vendor-neutral LLM and vector-store interfaces. The ingress refuses to serve without TLS and an API key
 
 ---
 
