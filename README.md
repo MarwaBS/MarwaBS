@@ -14,7 +14,7 @@ I build production AI systems that check their own outputs. Four years on enterp
 
 My first version scored R² = 0.997. It was wrong. `PRICE_PER_SQFT` was in the feature list, so the model was reading the target back out of its own input. I wrote that up as ADR-001 and removed the feature. The honest number came back at **0.835**, or 0.814 ± 0.028 across 20 seeds. Then I pulled the guard out into [`schema-firewall`](https://pypi.org/project/schema-firewall/) so it could not happen to me again.
 
-Three more things this repo taught me the hard way.
+Four more things this repo taught me the hard way.
 
 Every estimator was built with `n_jobs=-1`. Thread count decides the order the float sums land, so two runs of one commit on the same CI runner scored val R² 0.7740 and 0.7719. The top two candidates sat 0.0029 apart. That noise was enough to flip which model shipped, so a Linux runner published LightGBM while my laptop published XGBoost. The fix was `n_jobs=1` and recording the choice instead of re-deriving it every run.
 
@@ -22,9 +22,11 @@ The headline is also scored against a capped target. IQR bounds are fitted on tr
 
 The gate that watches the external benchmark only ever compared R². An R² over 100 rows reads exactly like one over 18,321, so a run that quietly scored a different set of rows would have passed. I replayed it against the committed result and it returned pass at 12.7%, 42.9%, 50.0% and 99.5% loss of the scored population. It now bands the row count and requires the set of drop reasons to match. A live run then moved the population 0.9%, which is the real drift the band has to tolerate.
 
+My leakage guard checks feature *names* for the word price. That is all it can do. Two of my columns, ZIP and sublocality, are target encoded, so they are built from price and the guard cannot see them. The README used to read that guard as proof of no price derived columns. It now says both facts: the guard is a name check, and those two columns are fitted on the train split only, inside the pipeline, so a row never contributes to its own encoding. A test holds that sentence to the encoder config.
+
 **Stack:** XGBoost · LightGBM · scikit-learn · SHAP · category-encoders · FastAPI · Streamlit · MLflow · Docker
 
-**Engineering signals:** 306 tests at an 85% coverage gate, 89.89% actual · **70-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
+**Engineering signals:** 307 tests at an 85% coverage gate, 89.89% actual · **71-mutation harness** that breaks one behaviour at a time and fails the build unless a named test catches it. Every entry was added because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed · SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly · external benchmark against public NYC.gov 2024 Rolling Sales, 18,321 real sales under a sealed schema contract, and CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
 
 ---
 
@@ -62,9 +64,11 @@ It also ships a Redis-backed distributed drift monitor with a familywise-correct
 
 Training repeats bit-identically on the same machine. Across machines the drift is unmeasured, and the repo says so.
 
+The repo used to record that its classifier lost to a logistic baseline, 0.6735 against 0.68. I found the comparison was unfair to my own model: the baseline was fitted once, on one split, while the classifier was scored across five. Refit on the same five splits they are **0.6958 ± 0.0075** and **0.6901 ± 0.0071**, a gap smaller than either spread. So neither one ranks better, and the shortfall I had been publishing was an artifact of how I measured, not a property of the model.
+
 **Stack:** XGBoost · FastAPI · Streamlit · Redis · Prometheus · Docker · Kubernetes · GitHub Actions · HuggingFace
 
-**Engineering signals:** 648 tests at an 88% coverage gate, 92.81% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
+**Engineering signals:** 653 tests at an 88% coverage gate, 92.84% actual · **every published metric is pinned to the file that produced it**. Corrupt a number in the README, the model card or the design record and CI fails · every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise · artifact integrity gate that refuses to start on a digest mismatch or a missing manifest · `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter · /predict p99 under 200ms enforced in CI · Dependabot and pip-audit CVE gate
 
 ---
 
