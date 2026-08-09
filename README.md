@@ -76,11 +76,15 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package. Swappable vector store. API-key-protected data plane. Prometheus metrics and structured JSON logs. The retrieval-recall eval gate in CI can actually fail.
 
+A committed measurement in this repo did not reproduce. The recall curve came back at 0.75 on my machine every time and 0.8333 in CI, on code that had not changed. The cause was not the retrieval. At ten thousand documents, 11 of the 12 queries tie **exactly** at the rank-3 cut, because distractors built from the same vocabulary hash into the same buckets as the gold document and the vectors come out identical. `np.argpartition` orders equal scores arbitrarily, so one gold sat at rank 4 on one machine and rank 3 on another. The number I had published was a property of the tie order, not of the system. A gold now has to beat the fourth score outright, which is the same value whichever tied document holds the slot. The curve is still 0.75. It is just defined now.
+
+Moving to the 0.2 line of my own library broke the Qdrant backend, and my local run could not see it. That release removed the default collection, because `add()` replaces the collection's contents and the library stopped guessing a name two services could share. Neither optional backend is installed on my machine, so the test took the boot-guard branch and reported green. The CI job that installs them caught it. That is the value of a job that builds the thing for real.
+
 The README draws a clear public/private line. A separate private product is built on the same design and stays private. Everything claimed in this repo runs with `pip install`.
 
 **Stack:** FastAPI · rag-llm-infra · Pydantic v2 · NumPy retrieval (FAISS/Qdrant optional) · SentenceTransformers (optional) · OpenAI (optional) · Prometheus · Docker · Kubernetes · Helm · GitHub Actions
 
-**Engineering signals:** the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window and the eval floors are derived by committed scripts and rebuilt byte-identical in CI · CI starts the built image and exercises its API, then publishes the image it scanned · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
+**Engineering signals:** 252 tests at a 93% coverage gate, 98.15% actual · the test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green · the chunk window, the eval floors and the scale curve are derived by committed scripts, and CI re-runs each producer and fails unless it returns the committed values · CI starts the built image in the configuration the Helm chart deploys and requires a missing key and a wrong key to both come back 401 before it will exercise the keyed routes, then publishes the image it scanned · a separate job installs the optional backends and requires each one to construct, because a backend that is only ever refused is a backend nobody has run · vendor-neutral LLM and vector-store interfaces · the ingress refuses to serve without TLS and an API key
 
 ---
 
@@ -88,7 +92,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 | Package | What it does |
 |---|---|
-| [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG and LLM serving infrastructure: swappable LLM interface and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing |
+| [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG and LLM serving infrastructure: swappable LLM interface and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing. 0.2 added the credential, the request and corpus bounds, and the `py.typed` marker, so callers get their types checked instead of `Any` |
 | [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, written against JAMA, Nature Communications and Kaggle Santander patterns |
 
 ---
