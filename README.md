@@ -69,7 +69,7 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 ### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
 
-Job scorer with a fixed core and a bounded LLM layer. Same input, same output, checked to 1e-9. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
+Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
