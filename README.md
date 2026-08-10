@@ -12,7 +12,7 @@ I build production AI systems that check their own outputs. Four years on enterp
 | [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, 499 lines | 126 tests · 97.10% · 20 of 20 defects caught |
 | [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 658 tests · 92.84% · 0 quantile crossings |
 | [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 253 tests · 98.15% |
-| [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 350 tests in ~3s · LLM capped at 25% of the score |
+| [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 355 tests in ~3s · LLM capped at 25% of the score |
 
 Every number above comes from a committed file in its repo, and each repo fails its own build if its docs and that file disagree. This page is a hand-kept copy of those numbers, so treat the repo as the source of truth.
 
@@ -69,7 +69,7 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 ### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
 
-Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 350 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
+Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 355 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
