@@ -1,26 +1,26 @@
 # Marwa Bensalem
 
-**Senior AI/ML Engineer** · Production LLM Systems · RAG · MLOps
+**Production ML Engineer** · LLM Systems · RAG · MLOps
 
 I build production AI systems that check their own outputs. Four years on enterprise HRIS/payroll at ADP taught me what breaks at 3am. Most "AI tools" are not production systems. I build the kind that are.
 
-📫 `marwabensalem30@gmail.com` · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
+📫 [marwabensalem30@gmail.com](mailto:marwabensalem30@gmail.com) · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
 | Shipped | What it is | Proof |
 |---|---|---|
 | [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 307 tests · 89.89% · 71 planted defects, all caught |
 | [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, 499 lines | 126 tests · 97.10% · 20 of 20 defects caught |
-| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 658 tests · 92.84% · 0 quantile crossings |
-| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 253 tests · 98.15% |
 | [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 355 tests in ~3s · LLM capped at 25% of the score |
+| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 658 tests · 92.49% · 0 quantile crossings |
+| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 253 tests · 97.85% |
 
-Every number above comes from a committed file in its repo, and each repo fails its own build if its docs and that file disagree. This page is a hand-kept copy of those numbers, so treat the repo as the source of truth.
+Every repo builds on every push. Four of the five also hold a coverage floor between 85% and 93%. The test counts and coverage above are what those runs printed; the defect counts, the zero crossings and the 25% cap are each held by a test. This page is copied by hand, so the repo is the source of truth.
 
 ---
 
 ## Shipped systems
 
-*Each entry below is a failure I found in my own work, and what I changed. Skip to the bold numbers if you are short on time.*
+*What each system does. Four of the five also carry a mistake I found in my own work and had to fix. Skip to the bold numbers if you are short on time.*
 
 ### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
 
@@ -32,7 +32,7 @@ Every estimator was built with `n_jobs=-1`. Thread count decides the order the f
 
 The headline is also scored against a capped target. IQR bounds are fitted on train, correctly, but they apply to every row, so 72 of 906 test prices are clipped before scoring. Against listed prices the same model gets **0.7883**. Both numbers sit next to each other in the README, because only quoting the better one would be a lie by omission.
 
-The gate that watches the external benchmark only ever compared R². An R² over 100 rows reads exactly like one over 18,321, so a run that quietly scored a different set of rows would have passed. I replayed it against the committed result and it returned pass at 12.7%, 42.9%, 50.0% and 99.5% loss of the scored population. It now bands the row count and requires the set of drop reasons to match. A live run then moved the population 0.9%, which is the real drift the band has to tolerate.
+The gate that watches the external benchmark only ever compared R². An R² over 100 rows reads exactly like one over 18,321, so a run that quietly scored a different set of rows would have passed. It now bands the row count at 10% and requires the set of drop reasons to match.
 
 My leakage guard checks feature *names* for the word price. That is all it can do. Two of my columns, ZIP and sublocality, are target encoded, so they are built from price and the guard cannot see them. The README used to read that guard as proof of no price derived columns. It now says both facts: the guard is a name check, and those two columns are fitted on the train split only, inside the pipeline, so a row never contributes to its own encoding. A test holds that sentence to the encoder config.
 
@@ -69,12 +69,15 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 ### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
 
-Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The LLM signal is capped at 25% of the score. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering. 355 isolated tests in about 3 seconds. The evaluation gate stays locked until 50 real outcomes arrive, so no metric is invented.
+Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering.
 
 **Stack:** Pydantic v2 · sentence-transformers · OpenAI GPT-4o · MongoDB Atlas · Streamlit · Docker · GitHub Actions · HuggingFace Spaces
 
 **Engineering signals**
 
+- **355 isolated tests** in about 3 seconds
+- **LLM capped at 25%** of the score, held by a test so the weight cannot creep
+- **Evaluation gate locked until 50 real outcomes** arrive, so no metric is invented
 - Append-only audit log. Every decision is recorded with its signals and weights, so any past verdict can be rebuilt
 - Protocol-based LLM and DB interfaces
 - CI runs a privacy audit, then tests and lint, then deploys
@@ -96,12 +99,12 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 **Engineering signals**
 
-- **658 tests**, 88% coverage gate, 92.84% actual
+- **658 tests**, 88% coverage gate, 92.49% actual
 - **Every published metric is pinned to the file that produced it.** Corrupt a number in the README, the model card or the design record and CI fails
 - Every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise
 - Artifact integrity gate that refuses to start on a digest mismatch or a missing manifest
 - `/predict`, `/predict/batch`, `/drift` and `/metrics` all behind the same key, with auth resolving before the rate limiter
-- **p99 under 200ms** on `/predict`, enforced in CI, plus Dependabot and a pip-audit CVE gate
+- **p99 under 200ms** on `/predict`, enforced in CI. Measured in-process over 100 sequential warm calls, not under load. Plus Dependabot and a pip-audit CVE gate
 
 ---
 
@@ -119,7 +122,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Engineering signals**
 
-- **253 tests**, 93% coverage gate, 98.15% actual
+- **253 tests**, 93% coverage gate, 97.85% actual
 - The test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green
 - The chunk window, the eval floors and the scale curve are derived by committed scripts. CI re-runs each producer and fails unless it returns the committed values
 - CI starts the built image in the configuration the Helm chart deploys, requires a missing key and a wrong key to both return 401 before it will exercise the keyed routes, then publishes the image it scanned
@@ -148,4 +151,4 @@ Security      Trivy · CycloneDX SBOM · Dependabot · pip-audit
 
 ---
 
-*Open to founding-engineer or staff IC roles in production AI and MLOps. NYC.*
+*Open to founding-engineer and production ML / MLOps roles. NYC.*
