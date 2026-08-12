@@ -9,7 +9,7 @@ I build production AI systems that check their own outputs. Four years on enterp
 | Shipped | What it is | Proof |
 |---|---|---|
 | [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 309 tests · 89.90% · 71 planted defects, all caught |
-| [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, 499 lines | 126 tests · 97.71% · 20 of 20 defects caught |
+| [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, under 500 lines | 126 tests · 97.71% · 20 of 20 defects caught |
 | [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 356 tests in ~5-10s · LLM capped at 25% of the score |
 | [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 661 tests · 92.84% · 0 quantile crossings |
 | [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 254 tests · 97.85% |
@@ -49,7 +49,7 @@ My leakage guard checks feature *names* for the word price. That is all it can d
 
 ### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
 
-Three checks: `check_leakage`, `check_schema`, `check_stateless`. 499 lines. Three dependencies. Four Python versions in CI.
+Three checks: `check_leakage`, `check_schema`, `check_stateless`. Under 500 lines. Three dependencies. Four Python versions in CI.
 
 The interesting part is not the checks. It is that this library has shipped three fail-opens of its own, and all three are recorded in the changelog rather than quietly patched. In 0.2.0 a speed change capped tail sampling to the 20 highest-variance columns. That re-opened a hole 0.1.3 had closed. A cross-row edit on a low-variance column was missed on about 18 of 20 seeds. A second shared a NaN sampling budget across columns, so the dirtiest column spent it and the column that leaked went unchecked. A third only sampled the frame the caller passed in, never the frame the pipeline returned, so winsorising a derived ratio slipped through on 14 of 40 seeds and a `duplicated()` flag on 40 of 40.
 
