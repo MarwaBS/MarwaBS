@@ -2,7 +2,7 @@
 
 **Production ML Engineer** · LLM Systems · RAG · MLOps
 
-I build production AI systems that check their own outputs. Four years on enterprise HRIS/payroll at ADP taught me what breaks at 3am. Most "AI tools" are not production systems. I build the kind that are.
+I build production ML systems that check their own outputs. Four years on enterprise HRIS/payroll at ADP taught me what breaks at 3am.
 
 📫 [marwabensalem30@gmail.com](mailto:marwabensalem30@gmail.com) · 🌐 [linkedin.com/in/marwabensalem](https://www.linkedin.com/in/marwabensalem) · 📦 PyPI: [schema-firewall](https://pypi.org/project/schema-firewall/) · [rag-llm-infra](https://pypi.org/project/rag-llm-infra/)
 
@@ -14,7 +14,7 @@ I build production AI systems that check their own outputs. Four years on enterp
 | [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 661 tests · 92.84% · 0 quantile crossings |
 | [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 254 tests · 97.85% |
 
-Every repo builds on every push. Four of the five also hold a coverage floor between 85% and 93%. The test counts and coverage above are what those runs printed; the defect counts, the zero crossings and the 25% cap are each held by a test. This page is copied by hand, so the repo is the source of truth.
+Every repo builds on every push. Four of the five hold a coverage floor (85, 90, 88, 93). The Job Decision Engine does not; it publishes 300+ tests. Coverage floors, the 500-line budget, zero crossings, and the 25% cap are held by tests in those repos. Exact test counts and one-run coverage prints are not copied here, because they move. This page is copied by hand. The repo is the source of truth.
 
 ---
 
@@ -22,13 +22,13 @@ Every repo builds on every push. Four of the five also hold a coverage floor bet
 
 *What each system does. Four of the five also carry a mistake I found in my own work and had to fix. Skip to the bold numbers if you are short on time.*
 
-### 📊 [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
+### [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/nyc-real-estate-predictor)
 
 My first version scored R² = 0.997. It was wrong. `PRICE_PER_SQFT` was in the feature list, so the model was reading the target back out of its own input. I wrote that up as ADR-001 and removed the feature. The honest number came back at **0.835**, or 0.814 ± 0.028 across 20 seeds. Then I pulled the guard out into [`schema-firewall`](https://pypi.org/project/schema-firewall/) so it could not happen to me again.
 
 Four more things this repo taught me the hard way.
 
-Every estimator was built with `n_jobs=-1`. Thread count decides the order the float sums land, so two runs of one commit on the same CI runner scored val R² 0.7740 and 0.7719. The top two candidates sat 0.0029 apart. That noise was enough to flip which model shipped, so a Linux runner published LightGBM while my laptop published XGBoost. The fix was `n_jobs=1` and recording the choice instead of re-deriving it every run.
+Every estimator was built with `n_jobs=-1`. Thread count decides the order the float sums land, so two runs of one commit could pick different winners. The fix was `n_jobs=1`. The shipped model is recorded rather than re-picked each run. On val, XGBoost leads LightGBM by 0.0029 R². `reports/seed_variance.json` is why XGBoost is the recorded choice: it wins 16 of 20 seeds.
 
 The headline is also scored against a capped target. IQR bounds are fitted on train, correctly, but they apply to every row, so 72 of 906 test prices are clipped before scoring. Against listed prices the same model gets **0.7883**. Both numbers sit next to each other in the README, because only quoting the better one would be a lie by omission.
 
@@ -40,14 +40,13 @@ My leakage guard checks feature *names* for the word price. That is all it can d
 
 **Engineering signals**
 
-- **309 tests**, 85% coverage gate, 89.90% actual
-- **71-mutation harness.** Each one breaks a single behaviour and the build fails unless a named test catches it. Every entry exists because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed
+- **85% coverage gate.** Mutation replay in CI: each entry breaks one behaviour and the build fails unless a named test catches it. Every entry exists because a gate turned out to be walkable, so the registry is a list of what a green suite had already missed
 - SHA256-manifest model registry, so the live Space serves the audited artifacts, checked weekly
 - External benchmark against public NYC.gov 2024 Rolling Sales, **18,321 real sales** under a sealed schema contract. CI fails if the recomputed score, the number of rows scored, or the set of reasons rows were dropped leaves its band
 
 ---
 
-### 🔥 [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
+### [schema-firewall](https://github.com/MarwaBS/schema-firewall) · [PyPI →](https://pypi.org/project/schema-firewall/)
 
 Three checks: `check_leakage`, `check_schema`, `check_stateless`. Under 500 lines. Three dependencies. Four Python versions in CI.
 
@@ -61,13 +60,12 @@ The claim is scoped on purpose. The check runs from the registry outwards, so it
 
 **Engineering signals**
 
-- **126 tests**, 97.71% branch coverage
-- The 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly
+- **90% coverage gate.** The 500-line budget, the dependency count and the public surface are each pinned by a test, so the design limits cannot rot quietly
 - Used downstream as a pinned dependency by the NYC benchmark. That pin stays at 0.1.3 by recorded decision, because 0.2.x changed the MI binning and the threshold would need re-measuring first
 
 ---
 
-### ⚖️ [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
+### [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) · [Live demo →](https://huggingface.co/spaces/MarwaBS/job-decision-engine)
 
 Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent path, which is what the public demo runs, the same input gives the same output every time, verified to 1e-9 in local and CI runs. With a key set, one signal comes from a live model and that path is not deterministic. The UI banner is checked against a live API ping at boot, so it cannot claim an LLM that is not answering.
 
@@ -75,7 +73,7 @@ Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent 
 
 **Engineering signals**
 
-- **356 isolated tests** in about 5 to 10 seconds
+- **300+ isolated tests** in about 5 to 10 seconds on a developer laptop
 - **LLM capped at 25%** of the score, held by a test so the weight cannot creep
 - **Evaluation gate locked until 50 real outcomes** arrive, so no metric is invented
 - Append-only audit log. Every decision is recorded with its signals and weights, so any past verdict can be rebuilt
@@ -85,7 +83,7 @@ Job scorer with a fixed core and a bounded LLM layer. On the default LLM-absent 
 
 ---
 
-### 💼 [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
+### [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) · [Live demo →](https://huggingface.co/spaces/MarwaBS/high-pay-salary-predictor)
 
 One multi-quantile XGBoost model serving P10, P50 and P90 from a single artifact, on BLS OEWS and US Census microdata. It returns calibrated ranges, not point estimates. The served interval is widened by a cross-conformal margin estimated on train-only folds, and the route that applies it is pinned by tests. Drop the margin and the suite goes red instead of quietly narrowing the interval.
 
@@ -99,7 +97,7 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 **Engineering signals**
 
-- **661 tests**, 88% coverage gate, 92.84% actual
+- **88% coverage gate.** Test count is pinned to what the suite actually collects, so a stale number fails the build in that repo
 - **Every published metric is pinned to the file that produced it.** Corrupt a number in the README, the model card or the design record and CI fails
 - Every hyper-parameter has a committed producer and a recorded search, read as a tie rather than a win because the margin sits inside build-to-build noise
 - Artifact integrity gate that refuses to start on a digest mismatch or a missing manifest
@@ -108,7 +106,7 @@ The repo used to record that its classifier lost to a logistic baseline, 0.6735 
 
 ---
 
-### 🧠 [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
+### [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform)
 
 Runnable reference RAG service built on my published [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) package. Swappable vector store. API-key-protected data plane. Prometheus metrics and structured JSON logs. The retrieval-recall eval gate in CI can actually fail.
 
@@ -122,8 +120,7 @@ The README draws a clear public/private line. A separate private product is buil
 
 **Engineering signals**
 
-- **254 tests**, 93% coverage gate, 97.85% actual
-- The test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green
+- **93% coverage gate.** The test step starts the run itself and reads the report that run wrote, so a skipped or faked suite fails instead of passing green
 - The chunk window, the eval floors and the scale curve are derived by committed scripts. CI re-runs each producer and fails unless it returns the committed values
 - CI starts the built image in the configuration the Helm chart deploys, requires a missing key and a wrong key to both return 401 before it will exercise the keyed routes, then publishes the image it scanned
 - A separate job installs the optional backends and requires each one to construct, because a backend that is only ever refused is a backend nobody has run
