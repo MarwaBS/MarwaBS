@@ -8,11 +8,11 @@ I build production ML systems that check their own outputs. Four years on enterp
 
 | Shipped | What it is | Proof |
 |---|---|---|
-| [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 85% coverage gate · mutation replay in CI · 18,321-sale benchmark |
-| [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, under 500 lines | 90% coverage gate · 500-line budget · 20 of 20 planted modes |
-| [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 300+ tests in about 5 to 10s on a developer laptop · LLM capped at 25% of the score |
-| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | Test count pinned to collection · 88% coverage gate · 0 quantile crossings |
-| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 93% coverage gate · retrieval eval that can fail |
+| [NYC Real Estate Predictor](https://github.com/MarwaBS/nyc-real-estate-predictor) | Price model that caught its own data leakage | 309 tests · 89.90% · 71 planted defects, all caught |
+| [schema-firewall](https://pypi.org/project/schema-firewall/) | Published PyPI package. 3 checks, under 500 lines | 126 tests · 97.71% · 20 of 20 defects caught |
+| [Job Decision Engine](https://github.com/MarwaBS/Job_Decision_Engine) | Job scorer with a bounded LLM layer | 356 tests in ~5-10s · LLM capped at 25% of the score |
+| [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | 661 tests · 92.84% · 0 quantile crossings |
+| [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 254 tests · 97.85% |
 
 Every repo builds on every push. Four of the five hold a coverage floor (85, 90, 88, 93). The Job Decision Engine does not; it publishes 300+ tests. Coverage floors, the 500-line budget, zero crossings, and the 25% cap are held by tests in those repos. Exact test counts and one-run coverage prints are not copied here, because they move. This page is copied by hand. The repo is the source of truth.
 
