@@ -14,7 +14,7 @@ I build production ML systems that check their own outputs. Four years on enterp
 | [Salary Quantile Predictor](https://github.com/MarwaBS/high-pay-salary-predictor) | Serves P10/P50/P90 ranges, not point estimates | Test count pinned to collection · 88% coverage gate · 0 quantile crossings |
 | [Production RAG Platform](https://github.com/MarwaBS/production-rag-platform) | Reference RAG service on my own published package | 93% coverage gate · retrieval eval that can fail |
 
-Every repo builds on every push. Four of the five hold a coverage floor (85, 90, 88, 93). The Job Decision Engine does not; it publishes 300+ tests. Coverage floors, the 500-line budget, zero crossings, and the 25% cap are held by tests in those repos. Exact test counts and one-run coverage prints are not copied here, because they move. This page is copied by hand. The repo is the source of truth.
+Every project gates pull requests and `main`. Four of the five hold a coverage floor (85, 90, 88, 93). The Job Decision Engine does not; it publishes 300+ tests. Coverage floors, the 500-line budget, zero crossings, and the 25% cap are held by tests in those repos. Exact test counts and one-run coverage prints are not copied here, because they move. This page is copied by hand. The repo is the source of truth.
 
 ---
 
