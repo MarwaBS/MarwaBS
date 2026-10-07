@@ -133,7 +133,7 @@ The README draws a clear public/private line. A separate private product is buil
 | Package | What it does |
 |---|---|
 | [`rag-llm-infra`](https://pypi.org/project/rag-llm-infra/) | Vendor-neutral RAG and LLM serving infrastructure: swappable LLM interface and vector store, cached embedding index, budget-aware multi-provider fallback, OpenTelemetry tracing. 0.2 added the credential and the request and corpus bounds. The wheel has shipped `py.typed` since 0.1.2, so callers get their types checked instead of `Any` |
-| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, aimed at leakage classes documented in JAMA Network Open, Nature Machine Intelligence and a Kaggle Santander competition |
+| [`schema-firewall`](https://pypi.org/project/schema-firewall/) | The three checks above, aimed at leakage classes documented in JAMA Network Open, Nature Machine Intelligence and Nature Communications |
 
 ---
 
